@@ -1,4 +1,4 @@
-# Install script for directory: /home/jstrelka/Desktop/cs_3600_clion_stuff/c_sudoku_verifier
+# Install script for directory: /home/jstrelka/Desktop/cs_3600_stuff/c_sudoku_verifier
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -45,5 +45,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/jstrelka/Desktop/cs_3600_clion_stuff/c_sudoku_verifier/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/jstrelka/Desktop/cs_3600_stuff/c_sudoku_verifier/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

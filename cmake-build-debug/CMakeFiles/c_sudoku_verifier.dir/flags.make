@@ -6,5 +6,5 @@ C_FLAGS = -g   -std=gnu11
 
 C_DEFINES = 
 
-C_INCLUDES = -I/home/jstrelka/Desktop/cs_3600_clion_stuff/c_sudoku_verifier/src 
+C_INCLUDES = -I/home/jstrelka/Desktop/cs_3600_stuff/c_sudoku_verifier/src 
 
