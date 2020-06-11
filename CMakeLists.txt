@@ -7,6 +7,6 @@ include_directories(src)
 
 add_executable(c_sudoku_verifier
     src/main.c
-    src/main.h)
+        )
 
 target_link_libraries(${PROJECT_NAME} pthread)

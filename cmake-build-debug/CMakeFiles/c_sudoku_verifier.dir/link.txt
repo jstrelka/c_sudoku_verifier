@@ -1,1 +1,0 @@
-/usr/bin/cc -g   CMakeFiles/c_sudoku_verifier.dir/src/main.c.o  -o c_sudoku_verifier  -lpthread 

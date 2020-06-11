@@ -5,10 +5,22 @@
  * LAST MOD:    6/11/20
 */
 
-#include "main.h"
+#define typedef int bool;
+const string filepath = "SudokuPuzzle.txt";
+int sudokuPuzzle[9][9];
+
+
+void populateArray(string filepath, int *sudokuPuzzle[9][9]);
+
 
 int main(){
 
+    populateArray(filepath, sudokuPuzzle);
 
+
+}
+
+
+void populateArray(string filepath, int *sudokuPuzzle[9][9]){
 
 }
