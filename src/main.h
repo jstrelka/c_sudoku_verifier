@@ -9,7 +9,13 @@
 #define C_SUDOKU_VERIFIER_MAIN_H
 
 #define typedef int bool;
+const string
 int sudokuPuzzle[9][9];
+
+
+void populateArray(string filepath, int *sudokuPuzzle[9][9])
+
+
 
 
 
