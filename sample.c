@@ -1,7 +1,3 @@
-//
-// Created by jstrelka on 6/11/20.
-//
-
 #include <pthread.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -10,7 +6,7 @@
 int value = 0;
 void *runner(void *param); /* the thread */
 
-int main(int argc, char *argv[]) {
+int sample(int argc, char *argv[]) {
 
     pid_t pid; pthread_t tid;
     pthread_attr_t attr;

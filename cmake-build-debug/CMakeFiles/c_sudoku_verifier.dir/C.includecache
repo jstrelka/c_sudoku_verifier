@@ -1,0 +1,18 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/jstrelka/Desktop/cs_3600_clion_stuff/c_sudoku_verifier/src/main.c
+pthread.h
+-
+stdio.h
+-
+unistd.h
+-
+wait.h
+-
+
