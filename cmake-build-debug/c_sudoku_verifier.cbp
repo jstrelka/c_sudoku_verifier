@@ -83,9 +83,6 @@
 		<Unit filename="/home/jstrelka/Desktop/cs_3600_stuff/c_sudoku_verifier/src/main.c">
 			<Option target="c_sudoku_verifier"/>
 		</Unit>
-		<Unit filename="/home/jstrelka/Desktop/cs_3600_stuff/c_sudoku_verifier/src/main.h">
-			<Option target="c_sudoku_verifier"/>
-		</Unit>
 		<Unit filename="/home/jstrelka/Desktop/cs_3600_stuff/c_sudoku_verifier/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\"/>
 		</Unit>

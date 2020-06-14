@@ -8,7 +8,8 @@ void *runner(void *param); /* the thread */
 
 int sample(int argc, char *argv[]) {
 
-    pid_t pid; pthread_t tid;
+    pid_t pid;
+    pthread_t tid;
     pthread_attr_t attr;
     pid = fork();
 
