@@ -14,7 +14,7 @@
 #define GRID 9
 const char filename[] = "/home/jstrelka/Desktop/cs_3600_stuff/c_sudoku_verifier/src/SudokuPuzzle.txt";
 int sudokuPuzzle[ROW][COLUMN];
-bool columnBool[COLUMN], rowBool[ROW], gridBool[GRID];
+bool columnBool[COLUMN], rowBool[ROW], subgridBool[GRID];
 
 typedef struct Bounds {
     int topRow;
@@ -29,6 +29,16 @@ void verifySolution();
 void initColStructs(struct Bounds columns[COLUMN]);
 void initColThreads(pthread_t tid_column[COLUMN], struct Bounds columns[COLUMN]);
 void *setColumnBool(void *param);
+void initRowStructs(struct Bounds rows[ROW]);
+void initRowThreads(pthread_t tid_row[ROW], struct Bounds rows[ROW]);
+void *setRowBool(void *param);
+void initSubgridStructs(struct Bounds subgrids[GRID]);
+void initSubgridThreads(pthread_t tid_subgrid[ROW], struct Bounds subgrids[ROW]);
+void *setSubgridBool(void *param);
+void boolTruePrint(pthread_t self, int topRow, int bottomRow, int leftColumn, int rightColumn);
+void boolFalsePrint(pthread_t self, int topRow, int bottomRow, int leftColumn, int rightColumn);
+
+
 
 int main(){
         populateArray();
@@ -68,9 +78,19 @@ void print2DArray(){
 void verifySolution(){
     struct Bounds columns[COLUMN];
     pthread_t tid_column[COLUMN];
+    struct Bounds rows[ROW];
+    pthread_t tid_row[ROW];
+    struct Bounds subgrids[ROW];
+    pthread_t tid_subgrid[ROW];
 
     initColStructs(columns);
     initColThreads(tid_column, columns);
+
+    initRowStructs(rows);
+    initRowThreads(tid_row, rows);
+
+    initSubgridStructs(subgrids);
+    initSubgridThreads(tid_subgrid, subgrids);
 }
 
 void initColStructs(struct Bounds columns[COLUMN]){
@@ -131,14 +151,295 @@ void *setColumnBool(void *param) {
 
     if(repeatedValues > 0){
         columnBool[leftColumn] = false;
-        printf("0x%x TRow: %d, BRow: %d, LCol: %d, RCol: %d invalid!\n",self, topRow, bottomRow, leftColumn, rightColumn, stdout);
+        boolFalsePrint(self, topRow, bottomRow, leftColumn, rightColumn);
+        //printf("0x%x TRow: %d, BRow: %d, LCol: %d, RCol: %d invalid!\n",self, topRow, bottomRow, leftColumn, rightColumn, stdout);
     }
     else{
         columnBool[leftColumn] = true;
-        printf("0x%x TRow: %d, BRow: %d, LCol: %d, RCol: %d valid!\n",self, topRow, bottomRow, leftColumn, rightColumn, stdout);
+        boolTruePrint(self, topRow, bottomRow, leftColumn, rightColumn);
+        //printf("0x%x TRow: %d, BRow: %d, LCol: %d, RCol: %d valid!\n",self, topRow, bottomRow, leftColumn, rightColumn, stdout);
     }
 
     pthread_exit(0);
+}
+
+void initRowStructs(struct Bounds rows[ROW]) {
+    for (int i=0; i<ROW;i++) {
+        Bounds Bound = {i, i, 0, 8};
+        rows[i] = Bound;
+    }
+}
+
+void initRowThreads(pthread_t *tid_row, struct Bounds rows[ROW]) {
+    pthread_attr_t attr[ROW];
+    pthread_t tid[ROW];
+
+    for (int i=0; i<ROW; i++){
+        pthread_attr_init(&(attr[i]));
+    }
+
+    for (int i=0; i<ROW;i++) {
+        pthread_create(&(tid[i]), &(attr[i]), setRowBool, &rows[i]);
+        tid_row[i] = tid[i];
+    }
+
+    for (int i=0; i<ROW; i++) {
+        pthread_join(tid[i],NULL);
+    }
+}
+
+void *setRowBool(void *param) {
+    Bounds *inP;
+    int topRow, bottomRow, leftColumn, rightColumn;
+    pthread_t self;
+    int rowValues[ROW];
+    int repeatedValues;
+
+    inP = (Bounds *)param;
+    topRow = inP->topRow;
+    bottomRow = inP->bottomRow;
+    leftColumn = inP->leftColumn;
+    rightColumn = inP->rightColumn;
+    self = pthread_self();
+    repeatedValues = 0;
+
+    for (int i=0; i<COLUMN; i++){
+        rowValues[i] = sudokuPuzzle[i][topRow];
+    }
+
+    for (int i=0; i<COLUMN; i++){
+        if(rowValues[i] >=1 && rowValues[i]<=9) {
+            for (int j = i + 1; j < COLUMN; j++) {
+                if (rowValues[i] == rowValues[j]){
+                    repeatedValues++;
+                    break;
+                }
+            }
+        }
+    }
+
+    if(repeatedValues > 0){
+        rowBool[topRow] = false;
+        boolFalsePrint(self, topRow, bottomRow, leftColumn, rightColumn);
+        //printf("0x%x TRow: %d, BRow: %d, LCol: %d, RCol: %d invalid!\n",self, topRow, bottomRow, leftColumn, rightColumn, stdout);
+    }
+    else{
+        rowBool[topRow] = true;
+        boolTruePrint(self, topRow, bottomRow, leftColumn, rightColumn);
+        //printf("0x%x TRow: %d, BRow: %d, LCol: %d, RCol: %d valid!\n",self, topRow, bottomRow, leftColumn, rightColumn, stdout);
+    }
+
+    pthread_exit(0);
+}
+
+void initSubgridStructs(struct Bounds *subgrids) {
+    int topRow, bottomRow, leftColumn, rightColumn;
+
+    for (int i=0; i<GRID;i++) {
+        if (i == 0 || i == 1 || i == 2){
+            topRow = 0;
+            bottomRow = 2;
+            if (i == 0) {
+                leftColumn = 0;
+                rightColumn = 2;
+            }
+            else if  (i == 1){
+                leftColumn = 3;
+                rightColumn =5;
+            }
+            else if (i == 2){
+                leftColumn = 6;
+                rightColumn = 8;
+            }
+        }
+        else if (i == 3 || i == 4 || i == 5){
+            topRow = 3;
+            bottomRow = 5;
+            if (i == 3) {
+                leftColumn = 0;
+                rightColumn = 2;
+            }
+            else if  (i == 4){
+                leftColumn = 3;
+                rightColumn =5;
+            }
+            else if (i == 5){
+                leftColumn = 6;
+                rightColumn = 8;
+            }
+        }
+        else {
+            topRow = 6;
+            bottomRow = 8;
+            if (i == 6) {
+                leftColumn = 0;
+                rightColumn = 2;
+            }
+            else if  (i == 7){
+                leftColumn = 3;
+                rightColumn =5;
+            }
+            else if (i == 8){
+                leftColumn = 6;
+                rightColumn = 8;
+            }
+        }
+
+        Bounds Bound = {topRow, bottomRow, leftColumn, rightColumn};
+        subgrids[i] = Bound;
+    }
+}
+
+void initSubgridThreads(pthread_t *tid_subgrid, struct Bounds *subgrids) {
+    pthread_attr_t attr[GRID];
+    pthread_t tid[GRID];
+
+    for (int i=0; i<GRID; i++){
+        pthread_attr_init(&(attr[i]));
+    }
+
+    for (int i=0; i<GRID;i++) {
+        pthread_create(&(tid[i]), &(attr[i]), setSubgridBool, &subgrids[i]);
+        tid_subgrid[i] = tid[i];
+    }
+
+    for (int i=0; i<GRID; i++) {
+        pthread_join(tid[i],NULL);
+    }
+}
+
+void *setSubgridBool(void *param) {
+    Bounds *inP;
+    int topRow, bottomRow, leftColumn, rightColumn;
+    pthread_t self;
+    int subgridValues[GRID];
+    int element;
+    int repeatedValues;
+
+    inP = (Bounds *)param;
+    topRow = inP->topRow;
+    bottomRow = inP->bottomRow;
+    leftColumn = inP->leftColumn;
+    rightColumn = inP->rightColumn;
+    self = pthread_self();
+    repeatedValues = 0;
+    element = 0;
+
+    for (int i=topRow; i<=bottomRow; i++){
+        for (int j=leftColumn; j<=rightColumn; j++) {
+            subgridValues[element] = sudokuPuzzle[i][j];
+            element++;
+        }
+    }
+
+    for (int i=0; i<GRID; i++){
+        if(subgridValues[i] >=1 && subgridValues[i]<=9) {
+            for (int j = i + 1; j < GRID; j++) {
+                if (subgridValues[i] == subgridValues[j]){
+                    repeatedValues++;
+                    break;
+                }
+            }
+        }
+    }
+
+    if(repeatedValues > 0){
+        if(topRow == 0 && bottomRow == 2) {
+            if(leftColumn == 0 && rightColumn == 2) {
+                subgridBool[0] = false;
+                boolFalsePrint(self, topRow, bottomRow, leftColumn, rightColumn);
+            }
+            else if (leftColumn == 3 && rightColumn == 5){
+                subgridBool[1] = false;
+                boolFalsePrint(self, topRow, bottomRow, leftColumn, rightColumn);
+            }
+            else if (leftColumn == 6 && rightColumn == 8){
+                subgridBool[2] = false;
+                boolFalsePrint(self, topRow, bottomRow, leftColumn, rightColumn);
+            }
+        }
+        else if(topRow == 3 && bottomRow == 5){
+            if(leftColumn == 0 && rightColumn == 2) {
+                subgridBool[3] = false;
+                boolFalsePrint(self, topRow, bottomRow, leftColumn, rightColumn);
+            }
+            else if (leftColumn == 3 && rightColumn == 5){
+                subgridBool[4] = false;
+                boolFalsePrint(self, topRow, bottomRow, leftColumn, rightColumn);
+            }
+            else if (leftColumn == 6 && rightColumn == 8){
+                subgridBool[5] = false;
+                boolFalsePrint(self, topRow, bottomRow, leftColumn, rightColumn);
+            }
+        }
+        else if(topRow == 6 && bottomRow == 8){
+            if(leftColumn == 0 && rightColumn == 2) {
+                subgridBool[6] = false;
+                boolFalsePrint(self, topRow, bottomRow, leftColumn, rightColumn);
+            }
+            else if (leftColumn == 3 && rightColumn == 5){
+                subgridBool[7] = false;
+                boolFalsePrint(self, topRow, bottomRow, leftColumn, rightColumn);
+            }
+            else if (leftColumn == 6 && rightColumn == 8){
+                subgridBool[8] = false;
+                boolFalsePrint(self, topRow, bottomRow, leftColumn, rightColumn);
+            }
+        }
+    }
+    else{
+        if(topRow == 0 && bottomRow == 2) {
+            if(leftColumn == 0 && rightColumn == 2) {
+                subgridBool[0] = true;
+                boolTruePrint(self, topRow, bottomRow, leftColumn, rightColumn);
+            }
+            else if(leftColumn == 3 && rightColumn == 5) {
+                subgridBool[1] = true;
+                boolTruePrint(self, topRow, bottomRow, leftColumn, rightColumn);
+            }
+            else if(leftColumn == 6 && rightColumn == 8) {
+                subgridBool[2] = true;
+                boolTruePrint(self, topRow, bottomRow, leftColumn, rightColumn);
+            }
+        }
+        else if(topRow == 3 && bottomRow == 5) {
+            if(leftColumn == 0 && rightColumn == 2) {
+                subgridBool[3] = true;
+                boolTruePrint(self, topRow, bottomRow, leftColumn, rightColumn);
+            }
+            else if(leftColumn == 3 && rightColumn == 5) {
+                subgridBool[4] = true;
+                boolTruePrint(self, topRow, bottomRow, leftColumn, rightColumn);
+            }
+            else if(leftColumn == 6 && rightColumn == 8) {
+                subgridBool[5] = true;
+                boolTruePrint(self, topRow, bottomRow, leftColumn, rightColumn);
+            }
+        }
+        else if(topRow == 6 && bottomRow == 8) {
+            if(leftColumn == 0 && rightColumn == 2) {
+                subgridBool[6] = true;
+                boolTruePrint(self, topRow, bottomRow, leftColumn, rightColumn);
+            }
+            else if(leftColumn == 3 && rightColumn == 5) {
+                subgridBool[7] = true;
+                boolTruePrint(self, topRow, bottomRow, leftColumn, rightColumn);
+            }
+            else if(leftColumn == 6 && rightColumn == 8) {
+                subgridBool[8] = true;
+                boolTruePrint(self, topRow, bottomRow, leftColumn, rightColumn);
+            }
+        }
+    }
+    pthread_exit(0);
+}
+
+void boolTruePrint(pthread_t self, int topRow, int bottomRow, int leftColumn, int rightColumn) {
+    printf("0x%x TRow: %d, BRow: %d, LCol: %d, RCol: %d valid!\n",self, topRow, bottomRow, leftColumn, rightColumn, stdout);
+}
+
+void boolFalsePrint(pthread_t self, int topRow, int bottomRow, int leftColumn, int rightColumn) {
+    printf("0x%x TRow: %d, BRow: %d, LCol: %d, RCol: %d invalid!\n", self, topRow, bottomRow, leftColumn, rightColumn, stdout);
 }
 
 
