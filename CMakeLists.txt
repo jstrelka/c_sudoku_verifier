@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 project(c_sudoku_verifier C)
 
-set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD 99)
 
 include_directories(src)
 
