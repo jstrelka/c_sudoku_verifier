@@ -12,7 +12,7 @@
 #define ROW 9
 #define COLUMN 9
 #define GRID 9
-const char filename[] = "/home/jstrelka/Desktop/cs_3600_stuff/c_sudoku_verifier/src/SudokuPuzzle.txt";
+//const char filename[] = "/home/jstrelka/Desktop/cs_3600_stuff/c_sudoku_verifier/src/SudokuPuzzle.txt";
 int sudokuPuzzle[ROW][COLUMN];
 bool columnBool[COLUMN], rowBool[ROW], subgridBool[GRID];
 pthread_t tid_column[COLUMN], tid_row[ROW], tid_subgrid[ROW];
@@ -24,7 +24,7 @@ typedef struct Bounds {
     int rightColumn;
 } Bounds;
 
-void populateArray();
+void populateArray(char **argv);
 void print2DArray();
 void verifySolution();
 void initColStructs(struct Bounds columns[COLUMN]);
@@ -46,8 +46,8 @@ void printRowFinal();
 void printSubgridFinal();
 void printSudokuFinal();
 
-int main(){
-    populateArray();
+int main(int argc, char **argv){
+    populateArray(argv);
     print2DArray();
     verifySolution();
     printColumnFinal();
@@ -56,9 +56,9 @@ int main(){
     printSudokuFinal();
 }
 
-void populateArray() {
+void populateArray(char **argv) {
     FILE *fp;
-    fp = fopen(filename, "r");
+    fp = fopen(argv[1], "r");
     int nums[COLUMN];
 
     if (fp == NULL) {
@@ -483,5 +483,5 @@ void printSudokuFinal() {
             valid = false;
         }
     }
-    printf("Sudoku Puzzle: %s", valid ? "valid" : "invalid");
+    printf("Sudoku Puzzle: %s\n", valid ? "valid" : "invalid");
 }
