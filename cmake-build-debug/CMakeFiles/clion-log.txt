@@ -1,6 +1,4 @@
-C:\Users\jstre\.CLion2018.3\system\cygwin_cmake\bin\cmake.exe -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /cygdrive/c/Users/jstre/OneDrive/bs_comp_sci_coursework/summer_20/cs_3600/homework/hwk_03/c_sudoku_verify
-CMake Error at CMakeLists.txt:1 (cmake_minimum_required):
-  CMake 3.16 or higher is required.  You are running version 3.13.2
-
-
--- Configuring incomplete, errors occurred!
+/snap/clion/116/bin/cmake/linux/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /home/jstrelka/Desktop/cs_3600_stuff/c_sudoku_verifier
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/jstrelka/Desktop/cs_3600_stuff/c_sudoku_verifier/cmake-build-debug
