@@ -24,7 +24,7 @@ typedef struct Bounds {
     int rightColumn;
 } Bounds;
 
-void populateArray(char **argv);
+void populateArray(char param[]);
 void print2DArray();
 void verifySolution();
 void initColStructs(struct Bounds columns[COLUMN]);
@@ -46,19 +46,27 @@ void printRowFinal();
 void printSubgridFinal();
 void printSudokuFinal();
 
-int main(int argc, char **argv){
-    populateArray(argv);
-    print2DArray();
-    verifySolution();
-    printColumnFinal();
-    printRowFinal();
-    printSubgridFinal();
-    printSudokuFinal();
+int main(int argc, char *argv[]){
+    //printf("%d", argc);
+    if(argc < 2){
+        printf("Please enter at least ONE SudokuPuzzle.txt file as a parameter in the command line.");
+        return 1;
+    }
+    for (int i=1; i<argc; i++) {
+        populateArray(argv[i]);
+        print2DArray();
+        verifySolution();
+        printColumnFinal();
+        printRowFinal();
+        printSubgridFinal();
+        printSudokuFinal();
+    }
+    return 0;
 }
 
-void populateArray(char **argv) {
+void populateArray(char param[]) {
     FILE *fp;
-    fp = fopen(argv[1], "r");
+    fp = fopen(param, "r");
     int nums[COLUMN];
 
     if (fp == NULL) {
