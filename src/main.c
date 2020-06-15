@@ -2,7 +2,7 @@
  * AUTHOR:      JUSTIN STRELKA
  * ASSIGNMENT:  HWK_03_SUDOKU_VERIFY
  * DATE:        6/11/20
- * LAST MOD:    6/11/20
+ * LAST MOD:    6/15/20
 */
 
 #include <stdio.h>
@@ -12,10 +12,9 @@
 #define ROW 9
 #define COLUMN 9
 #define GRID 9
-//const char filename[] = "/home/jstrelka/Desktop/cs_3600_stuff/c_sudoku_verifier/src/SudokuPuzzle.txt";
+
 int sudokuPuzzle[ROW][COLUMN];
 bool columnBool[COLUMN], rowBool[ROW], subgridBool[GRID];
-//pthread_t tid_column[COLUMN], tid_row[ROW], tid_subgrid[ROW];
 
 typedef struct Bounds {
     int topRow;
@@ -27,18 +26,14 @@ typedef struct Bounds {
 void populateArray(char param[]);
 void print2DArray();
 void verifySolution(pthread_t tid_column[COLUMN], pthread_t tid_row[ROW], pthread_t tid_subgrid[ROW]);
-//void verifySolution();
 void initColStructs(struct Bounds columns[COLUMN]);
 void initColThreads(pthread_t tid_column[COLUMN], struct Bounds columns[COLUMN]);
-//void initColThreads(struct Bounds columns[COLUMN]);
 void *setColumnBool(void *param);
 void initRowStructs(struct Bounds rows[ROW]);
 void initRowThreads(pthread_t tid_row[ROW], struct Bounds rows[ROW]);
-//void initRowThreads(struct Bounds rows[ROW]);
 void *setRowBool(void *param);
 void initSubgridStructs(struct Bounds subgrids[GRID]);
 void initSubgridThreads(pthread_t tid_subgrid[ROW], struct Bounds subgrids[ROW]);
-//void initSubgridThreads(struct Bounds subgrids[ROW]);
 void *setSubgridBool(void *param);
 void boolTruePrint(pthread_t self, int topRow, int bottomRow, int leftColumn, int rightColumn);
 void boolFalsePrint(pthread_t self, int topRow, int bottomRow, int leftColumn, int rightColumn);
@@ -48,14 +43,17 @@ void printSubgridFinal(pthread_t tid_subgrid[ROW]);
 void printSudokuFinal();
 
 int main(int argc, char *argv[]){
+    // Initialize arrays to hold child thread id's
     pthread_t tid_column[COLUMN];
     pthread_t tid_row[ROW];
     pthread_t tid_subgrid[ROW];
 
+    // Make sure user gave command line filename argument
     if(argc < 1){
         printf("Please enter at least ONE SudokuPuzzle.txt file as a parameter in the command line.");
         return 1;
     }
+    // For loop will itrate through all filenames passed in command line
     for (int i=1; i<argc; i++) {
         populateArray(argv[i]);
         print2DArray();
@@ -71,15 +69,19 @@ int main(int argc, char *argv[]){
 void populateArray(char param[]) {
     FILE *fp;
     fp = fopen(param, "r");
+    // Used to hold values on single line of Sudoku file
     int nums[COLUMN];
 
     if (fp == NULL) {
         printf("File open error!!!");
         return;
-    } else {
+    }
+    else {
+        // For loop to iterate all 9 lines in a Sudoku file delimited by \t
         for (int i=0;i<ROW;i++) {
             fscanf(fp, "%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n", &nums[0], &nums[1], &nums[2], &nums[3], &nums[4],
                    &nums[5], &nums[6], &nums[7], &nums[8]);
+            // Assign 2d Sudoku array values
             for (int j = 0; j < COLUMN; j++) {
                 sudokuPuzzle[i][j] = nums[j];
             }
@@ -97,27 +99,21 @@ void print2DArray(){
     }
 }
 
-//void verifySolution(){
 void verifySolution(pthread_t tid_column[COLUMN], pthread_t tid_row[ROW], pthread_t tid_subgrid[ROW]){
     struct Bounds columns[COLUMN];
-    //pthread_t tid_column[COLUMN];
     struct Bounds rows[ROW];
-    //pthread_t tid_row[ROW];
     struct Bounds subgrids[ROW];
-    //pthread_t tid_subgrid[ROW];
 
     initColStructs(columns);
     initColThreads(tid_column, columns);
-    //initColThreads(columns);
 
     initRowStructs(rows);
     initRowThreads(tid_row, rows);
-    //initRowThreads(rows);
 
     initSubgridStructs(subgrids);
     initSubgridThreads(tid_subgrid, subgrids);
-    //initSubgridThreads(subgrids);
 
+    // Ensure parent thread will wait for all child threads to finish before returning to main
     for (int i=0; i<COLUMN; i++) {
         pthread_join(tid_column[i],NULL);
         pthread_join(tid_row[i],NULL);
@@ -125,6 +121,7 @@ void verifySolution(pthread_t tid_column[COLUMN], pthread_t tid_row[ROW], pthrea
     }
 }
 
+// Sets the index bounds for a column in a Sudoku Puzzle
 void initColStructs(struct Bounds columns[COLUMN]){
     for (int i=0; i<COLUMN;i++) {
         Bounds Bound = {0, 8, i, i};
@@ -132,8 +129,8 @@ void initColStructs(struct Bounds columns[COLUMN]){
     }
 }
 
+// Initialize threads to verify Sudoku rules for columns have been met
 void initColThreads(pthread_t tid_column[COLUMN], struct Bounds columns[COLUMN]) {
-//void initColThreads(struct Bounds columns[COLUMN]) {
     pthread_attr_t attr[COLUMN];
     pthread_t tid[COLUMN];
 
@@ -145,14 +142,10 @@ void initColThreads(pthread_t tid_column[COLUMN], struct Bounds columns[COLUMN])
         pthread_create(&(tid[i]), &(attr[i]), setColumnBool, &columns[i]);
         tid_column[i] = tid[i];
     }
-
-    for (int i=0; i<COLUMN; i++) {
-        pthread_join(tid[i],NULL);
-    }
 }
 
+// Set boolean variables to signify which columns have errors.
 void *setColumnBool(void *param) {
-
     Bounds *inP;
     int topRow, bottomRow, leftColumn, rightColumn;
     pthread_t self;
@@ -196,6 +189,7 @@ void *setColumnBool(void *param) {
     pthread_exit(0);
 }
 
+// Sets the index bounds for a row in a Sudoku Puzzle
 void initRowStructs(struct Bounds rows[ROW]) {
     for (int i=0; i<ROW;i++) {
         Bounds Bound = {i, i, 0, 8};
@@ -203,8 +197,8 @@ void initRowStructs(struct Bounds rows[ROW]) {
     }
 }
 
+// Initialize threads to verify Sudoku rules for rows have been met
 void initRowThreads(pthread_t *tid_row, struct Bounds rows[ROW]) {
-//void initRowThreads(struct Bounds rows[ROW]) {
     pthread_attr_t attr[ROW];
     pthread_t tid[ROW];
 
@@ -216,12 +210,9 @@ void initRowThreads(pthread_t *tid_row, struct Bounds rows[ROW]) {
         pthread_create(&(tid[i]), &(attr[i]), setRowBool, &rows[i]);
         tid_row[i] = tid[i];
     }
-
-    for (int i=0; i<ROW; i++) {
-        pthread_join(tid[i],NULL);
-    }
 }
 
+// Set boolean variables to signify which rows have errors.
 void *setRowBool(void *param) {
     Bounds *inP;
     int topRow, bottomRow, leftColumn, rightColumn;
@@ -266,10 +257,13 @@ void *setRowBool(void *param) {
     pthread_exit(0);
 }
 
+// Sets the index bounds for a subgrid in a Sudoku Puzzle
 void initSubgridStructs(struct Bounds *subgrids) {
     int topRow, bottomRow, leftColumn, rightColumn;
 
+    // Grids are numbered left to right, top to bottom
     for (int i=0; i<GRID;i++) {
+        // Top row of subgrids
         if (i == 0 || i == 1 || i == 2){
             topRow = 0;
             bottomRow = 2;
@@ -281,11 +275,12 @@ void initSubgridStructs(struct Bounds *subgrids) {
                 leftColumn = 3;
                 rightColumn =5;
             }
-            else if (i == 2){
+            else{
                 leftColumn = 6;
                 rightColumn = 8;
             }
         }
+        // Middle row of subgrids
         else if (i == 3 || i == 4 || i == 5){
             topRow = 3;
             bottomRow = 5;
@@ -297,11 +292,12 @@ void initSubgridStructs(struct Bounds *subgrids) {
                 leftColumn = 3;
                 rightColumn =5;
             }
-            else if (i == 5){
+            else{
                 leftColumn = 6;
                 rightColumn = 8;
             }
         }
+        // Bottom row of subgrids
         else {
             topRow = 6;
             bottomRow = 8;
@@ -324,8 +320,8 @@ void initSubgridStructs(struct Bounds *subgrids) {
     }
 }
 
+// Initialize threads to verify Sudoku rules for subgrids have been met
 void initSubgridThreads(pthread_t *tid_subgrid, struct Bounds *subgrids) {
-//void initSubgridThreads(struct Bounds *subgrids) {
     pthread_attr_t attr[GRID];
     pthread_t tid[GRID];
 
@@ -337,12 +333,9 @@ void initSubgridThreads(pthread_t *tid_subgrid, struct Bounds *subgrids) {
         pthread_create(&(tid[i]), &(attr[i]), setSubgridBool, &subgrids[i]);
         tid_subgrid[i] = tid[i];
     }
-
-    for (int i=0; i<GRID; i++) {
-        pthread_join(tid[i],NULL);
-    }
 }
 
+// Set boolean variables to signify which subgrids have errors.
 void *setSubgridBool(void *param) {
     Bounds *inP;
     int topRow, bottomRow, leftColumn, rightColumn;
@@ -469,34 +462,41 @@ void *setSubgridBool(void *param) {
     pthread_exit(0);
 }
 
+// Used by child threads to show the validity of their assigned column, row, or subgrid
 void boolTruePrint(pthread_t self, int topRow, int bottomRow, int leftColumn, int rightColumn) {
     printf("0x%lx TRow: %d, BRow: %d, LCol: %d, RCol: %d valid!\n",self, topRow, bottomRow, leftColumn, rightColumn, stdout);
 }
 
+// Used by child threads to show invalidity of their assigned column, row, or subgrid
 void boolFalsePrint(pthread_t self, int topRow, int bottomRow, int leftColumn, int rightColumn) {
     printf("0x%lx TRow: %d, BRow: %d, LCol: %d, RCol: %d invalid!\n", self, topRow, bottomRow, leftColumn, rightColumn, stdout);
 }
 
+// Parent thread uses to print returned validity of column threads
 void printColumnFinal(pthread_t tid_column[COLUMN]){
     for (int i=0; i<COLUMN; i++){
         printf("Column: 0x%lx %s\n", tid_column[i], columnBool[i] ? "valid" : "invalid");
     }
 }
 
+// Parent thread uses to print returned validity of row threads
 void printRowFinal(pthread_t tid_row[ROW]){
     for (int i=0; i<ROW; i++){
         printf("Row: 0x%lx %s\n", tid_row[i], rowBool[i] ? "valid" : "invalid");
     }
 }
 
+// Parent thread uses to print returned validity of subgrid threads
 void printSubgridFinal(pthread_t tid_subgrid[ROW]) {
     for (int i=0; i<GRID; i++){
         printf("Subgrid: 0x%lx %s\n", tid_subgrid[i], subgridBool[i] ? "valid" : "invalid");
     }
 }
 
+// Parent thread validates if all rows, columns, subgrids have been deemed valid by child threads
 void printSudokuFinal() {
     bool valid = true;
+
     for (int i=0; i<COLUMN; i++){
         if (columnBool[i] == false || rowBool[i] == false || subgridBool[i] == false){
             valid = false;
