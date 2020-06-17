@@ -2,7 +2,7 @@
  * AUTHOR:      JUSTIN STRELKA
  * ASSIGNMENT:  HWK_03_SUDOKU_VERIFY
  * DATE:        6/11/20
- * LAST MOD:    6/15/20
+ * LAST MOD:    6/17/20
 */
 
 #include <stdio.h>
